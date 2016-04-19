@@ -18,6 +18,14 @@ endif
 
 lib_LTLIBRARIES = libpluto_codegen_cxx.la
 
+pluto_codegen_cxxdir=$(includedir)/pluto_codegen_cxx
+
+pluto_codegen_cxx_HEADERS=\
+	include/pluto_codegen_cxx.hpp
+
+#pkginclude_HEADERS=\
+#	include/pluto_codegen_cxx.hpp
+
 # libpluto doesn't use polylib-based functions
 libpluto_codegen_cxx_la_SOURCES = main.cpp clast_acc.cpp clast_omp.cpp
 libpluto_codegen_cxx_la_CPPFLAGS = -std=c++1y $(OPT_FLAGS) $(DEBUG_FLAGS) \
@@ -37,3 +45,22 @@ libpluto_codegen_cxx_la_LIBADD = \
    ../src/libpluto.la \
    ../cloog-isl/libcloog-isl.la \
    $(ISL_LIBADD)
+
+EXTRA_DIST = \
+	cmake
+
+install-data-local:
+	@test -z "$(DESTDIR)$(libdir)/pluto_codegen_cxx" || $(mkdir_p) "$(DESTDIR)$(libdir)/pluto_codegen_cxx"
+	$(INSTALL_DATA) "$(top_srcdir)/cmake/pluto_codegen_cxx-config.cmake" "$(DESTDIR)$(libdir)/pluto_codegen_cxx/"
+	
+uninstall-local:
+	rm -f "$(DESTDIR)$(libdir)/pluto_codegen_cxx/pluto_codegen_cxx-config.cmake"
+
+total:
+	@echo "             /*-----------------------------------------------*"
+	@echo "              *                     pluto_codegen_cxx         *"
+	@echo "              *-----------------------------------------------*/"
+	$(MAKE) uninstall
+	$(MAKE) clean
+	$(MAKE)
+	$(MAKE) install
