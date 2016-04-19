@@ -15,6 +15,7 @@
 
 #include "pluto/libpluto.h"
 
+// this might not be needed anymore
 extern "C"{
 #include "program.h"
 #include "constraints.h"
