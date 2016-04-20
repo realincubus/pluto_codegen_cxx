@@ -29,11 +29,6 @@ libpluto_codegen_cxx_la_CPPFLAGS = -std=c++1y $(OPT_FLAGS) $(DEBUG_FLAGS) \
    -I include \
    -I../include \
    -I../isl/include \
-   -I../piplib/include \
-   -I../clan/include \
-   -I../openscop/include \
-   -I../candl/include \
-   -I../cloog-isl/include \
    -I../src/ \
    $(ISL_INCLUDE)
 

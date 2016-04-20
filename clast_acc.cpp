@@ -11,13 +11,6 @@
 #include <iostream>
 #include <vector>
 
-#ifdef OSL_SUPPORT
-#include <osl/util.h>
-#include <osl/body.h>
-#include <osl/extensions/extbody.h>
-#include <osl/statement.h>
-#include <osl/scop.h>
-#endif
 
 #undef cloog_int_print
 #define cloog_int_print(out,i)                                          \
@@ -297,6 +290,7 @@ void pprint_assignment(struct cloogoptions *i, stringstream& dst,
 }
 
 
+// TODO delete
 /**
  * pprint_osl_body function:
  * this function pretty-prints the OpenScop body of a given statement.
@@ -309,52 +303,6 @@ void pprint_assignment(struct cloogoptions *i, stringstream& dst,
  */
 int pprint_osl_body(struct cloogoptions *options, std::stringstream& dst,
                     struct clast_user_stmt *u) {
-#ifdef OSL_SUPPORT
-  int i;
-  char *expr, *tmp;
-  struct clast_stmt *t;
-  osl_scop_p scop = options->scop;
-  osl_statement_p stmt;
-  osl_body_p body;
-
-  if ((scop != NULL) &&
-      (osl_statement_number(scop->statement) >= u->statement->number)) {
-    stmt = scop->statement;
-
-    /* Go to the convenient statement in the SCoP. */
-    for (i = 1; i < u->statement->number; i++)
-      stmt = stmt->next;
-
-    /* Ensure it has a printable body. */
-    body = osl_statement_get_body(stmt);
-    if ((body != NULL) &&
-        (body->expression != NULL) &&
-        (body->iterators != NULL)) {
-      expr = osl_util_identifier_substitution(body->expression->string[0],
-                                              body->iterators->string);
-      tmp = expr;
-      /* Print the body expression, substituting the @...@ markers. */
-      while (*expr) {
-        if (*expr == '@') {
-          int iterator;
-          expr += sscanf(expr, "@%d", &iterator) + 2; /* 2 for the @s */
-          t = u->substitutions;
-          for (i = 0; i < iterator; i++)
-            t = t->next;
-          pprint_assignment(options, dst, (struct clast_assignment *)t);
-        } else {
-          //fprintf(dst, "%c", *expr++);
-	  dst << *expr;
-	  expr++;
-        }
-      }
-      //fprintf(dst, "\n");
-      dst << endl;
-      free(tmp);
-      return 1;
-    }
-  }
-#endif
   return 0;
 }
 
