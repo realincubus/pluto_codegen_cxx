@@ -23,15 +23,12 @@ pluto_codegen_cxxdir=$(includedir)/pluto_codegen_cxx
 pluto_codegen_cxx_HEADERS=\
 	include/pluto_codegen_cxx.hpp
 
-#pkginclude_HEADERS=\
-#	include/pluto_codegen_cxx.hpp
-
-# libpluto doesn't use polylib-based functions
 libpluto_codegen_cxx_la_SOURCES = main.cpp clast_acc.cpp clast_omp.cpp
 libpluto_codegen_cxx_la_CPPFLAGS = -std=c++1y $(OPT_FLAGS) $(DEBUG_FLAGS) \
    -DSCOPLIB_INT_T_IS_LONGLONG -DCLOOG_INT_GMP \
    -I include \
    -I../include \
+   -I../isl/include \
    -I../piplib/include \
    -I../clan/include \
    -I../openscop/include \
@@ -40,7 +37,6 @@ libpluto_codegen_cxx_la_CPPFLAGS = -std=c++1y $(OPT_FLAGS) $(DEBUG_FLAGS) \
    -I../src/ \
    $(ISL_INCLUDE)
 
-# libpluto doesn't use polylib
 libpluto_codegen_cxx_la_LIBADD = \
    ../src/libpluto.la \
    ../cloog-isl/libcloog-isl.la \
