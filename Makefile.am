@@ -28,6 +28,10 @@ libpluto_codegen_cxx_la_CPPFLAGS = -std=c++1y $(OPT_FLAGS) $(DEBUG_FLAGS) \
    -DSCOPLIB_INT_T_IS_LONGLONG -DCLOOG_INT_GMP \
    -I include \
    -I../include \
+   -I../cloog-isl/include \
+   -I../openscop/include \
+   -I../candl/include \
+   -I../piplib/include \
    -I../isl/include \
    -I../src/ \
    $(ISL_INCLUDE)

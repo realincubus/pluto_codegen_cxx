@@ -15,14 +15,14 @@
 
 #include "pluto/libpluto.h"
 
+#include "program.h"
 // this might not be needed anymore
 extern "C"{
-#include "program.h"
 #include "constraints.h"
 #include "math_support.h"
 void pluto_mark_parallel(struct clast_stmt *root, const PlutoProg *prog, CloogOptions *options);
 void pluto_mark_vector(struct clast_stmt *root, const PlutoProg *prog, CloogOptions *options);
-int pluto_is_hyperplane_scalar(const Stmt *stmt, int level);
+//int pluto_is_hyperplane_scalar(const Stmt *stmt, int level);
 }
 
 #include "pluto_codegen_cxx.hpp"
