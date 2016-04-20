@@ -13,10 +13,14 @@ endif()
 find_path(PLUTO_CODEGEN_CXX_INCLUDE_DIR NAMES pluto_codegen_cxx/pluto_codegen_cxx.hpp)
 find_library(PLUTO_CODEGEN_CXX_LIBRARY NAMES pluto_codegen_cxx)
 
+set ( PLUTO_CODEGEN_CXX_INCLUDE_DIR "${PLUTO_CODEGEN_CXX_INCLUDE_DIR}/pluto_codegen_cxx/" )
+
 if (PLUTO_CODEGEN_CXX_LIBRARY AND PLUTO_CODEGEN_CXX_INCLUDE_DIR)
-	message(STATUS "Library pluto found =) ${PLUTO_CODEGEN_CXX_LIBRARY}")
+	message(STATUS "Include dir pluto_codegen_cxx found =) ${PLUTO_CODEGEN_CXX_INCLUDE_DIR}")
+	message(STATUS "Library pluto_codegen_cxx found =) ${PLUTO_CODEGEN_CXX_LIBRARY}")
 else()
-	message(STATUS "Library pluto not found =(")
+  message(STATUS "Include dir pluto_codegen_cxx not found =(")
+	message(STATUS "Library pluto_codegen_cxx not found =(")
 endif()
 
 include(FindPackageHandleStandardArgs)
