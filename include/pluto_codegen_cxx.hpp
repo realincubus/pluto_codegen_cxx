@@ -20,7 +20,8 @@ namespace pluto_codegen_cxx{
       const PlutoProg *prog, 
       std::vector<std::string>& statement_texts,
       EMIT_CODE_TYPE emit_code_type,
-      bool write_cloog_file
+      bool write_cloog_file,
+      std::map<std::string, std::string>& call_texts
       );
 
 

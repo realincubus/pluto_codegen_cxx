@@ -72,7 +72,9 @@ static int get_first_point_loop(Stmt *stmt, const PlutoProg *prog)
  *  then the function takes care of the rest
  */
 int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
-        stringstream& outfp, FILE* cloogfp, vector<std::string>& statement_texts, EMIT_CODE_TYPE emit_code_type )
+        stringstream& outfp, FILE* cloogfp, vector<std::string>& statement_texts, EMIT_CODE_TYPE emit_code_type,
+	std::map<std::string,std::string>& call_texts
+    )
 {
     CloogInput *input ;
     CloogOptions *cloogOptions ;
@@ -165,9 +167,9 @@ int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
 #endif
 
     if ( emit_code_type == EMIT_ACC ) {
-      clast_cxx_acc::clast_pprint(outfp, root, 0, cloogOptions, statement_texts);
+      clast_cxx_acc::clast_pprint(outfp, root, 0, cloogOptions, statement_texts, call_texts);
     }else if( emit_code_type == EMIT_OPENMP ){
-      clast_cxx_omp::clast_pprint(outfp, root, 0, cloogOptions, statement_texts);
+      clast_cxx_omp::clast_pprint(outfp, root, 0, cloogOptions, statement_texts, call_texts);
     }else{
       std::cout << "not impemented" << std::endl;
       return 0;
@@ -214,9 +216,17 @@ int pluto_multicore_codegen( stringstream& outfp,
     const PlutoProg *prog, 
     vector<std::string>& statement_texts,
     EMIT_CODE_TYPE emit_code_type,
-    bool write_cloog_file
+    bool write_cloog_file,
+    std::map<std::string, std::string>& call_texts
     )
 { 
+
+    std::cerr << "arrived call_texts " << std::endl;
+    for( auto&& element : call_texts ){
+        std::cerr << element.first << " " << element.second << std::endl;
+    }
+    
+
     // cloog has to generate some file that can then be read by clast
     // to make it faster and thread save, we put this into a memory buffer 
     size_t in_memory_file_size = 2*1024*1024;
@@ -247,7 +257,7 @@ int pluto_multicore_codegen( stringstream& outfp,
 
     std::cout << "pluto_codegen_cxx ndeps " <<  prog->ndeps << std::endl;
 
-    return pluto_gen_cloog_code_cxx(prog, -1, -1, outfp, cloogfp, statement_texts, emit_code_type );
+    return pluto_gen_cloog_code_cxx(prog, -1, -1, outfp, cloogfp, statement_texts, emit_code_type, call_texts );
 }
 
 }

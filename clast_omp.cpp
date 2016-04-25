@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 
+#include "clast_cxx.hpp"
 
 #undef cloog_int_print
 #define cloog_int_print(out,i)                                          \
@@ -56,11 +57,18 @@ static void pprint_stmt_list(struct cloogoptions *options, stringstream& dst, in
 		       struct clast_stmt *s);
 
 vector<std::string>* global_statement_texts;
+std::map<std::string,std::string>* global_call_texts;
 
 
 void pprint_name(std::stringstream& dst, struct clast_name *n)
 {
-        dst << n->name;
+  std::cerr << "printing name " << n->name << std::endl;
+  auto id = global_call_texts->find( n->name );
+  if ( id != global_call_texts->end() ) { 
+    dst << id->second;
+  }else{
+    dst << n->name;
+  }
 }
 
 /**
@@ -664,9 +672,14 @@ void pprint_stmt_list(struct cloogoptions *options, stringstream& dst, int inden
  ******************************************************************************/
 
 void clast_pprint(stringstream& foo, struct clast_stmt *root,
-		  int indent, CloogOptions *options, vector<std::string>& statement_texts)
+		  int indent, 
+		  CloogOptions *options, 
+		  vector<std::string>& statement_texts,
+		  std::map<std::string,std::string>& call_texts
+		  )
 {
   global_statement_texts = &statement_texts;
+  global_call_texts = &call_texts;
     pprint_stmt_list(options, foo, indent, root);
 }
 

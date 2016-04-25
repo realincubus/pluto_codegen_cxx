@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <vector>
+#include <map>
 
 namespace clast_cxx_omp{
   void clast_pprint(
@@ -11,7 +12,8 @@ namespace clast_cxx_omp{
       struct clast_stmt *root, 
       int indent, 
       CloogOptions *options, 
-      std::vector<std::string>& statement_texts 
+      std::vector<std::string>& statement_texts,
+      std::map<std::string,std::string>& call_texts
   );
 }
 namespace clast_cxx_acc{
@@ -20,7 +22,8 @@ namespace clast_cxx_acc{
       struct clast_stmt *root, 
       int indent, 
       CloogOptions *options, 
-      std::vector<std::string>& statement_texts 
+      std::vector<std::string>& statement_texts,
+      std::map<std::string,std::string>& call_texts
   );
 }
 
