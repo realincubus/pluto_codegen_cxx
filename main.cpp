@@ -28,6 +28,10 @@ void pluto_mark_vector(struct clast_stmt *root, const PlutoProg *prog, CloogOpti
 #include "pluto_codegen_cxx.hpp"
 #include "clast_cxx.hpp"
 
+#include "codegen.hpp"
+#include "codegen_omp.hpp"
+#include "codegen_acc.hpp"
+#include "codegen_cilk.hpp"
 
 using namespace std;
 
@@ -167,9 +171,13 @@ int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
 #endif
 
     if ( emit_code_type == EMIT_ACC ) {
-      clast_cxx_acc::clast_pprint(outfp, root, 0, cloogOptions, statement_texts, call_texts);
+      //clast_cxx_acc::clast_pprint(outfp, root, 0, cloogOptions, statement_texts, call_texts);
+      CodeGenAcc codegen_acc( outfp, cloogOptions, statement_texts, call_texts );
+      codegen_acc.pprint( root, 0 );
     }else if( emit_code_type == EMIT_OPENMP ){
-      clast_cxx_omp::clast_pprint(outfp, root, 0, cloogOptions, statement_texts, call_texts);
+      //clast_cxx_omp::clast_pprint(outfp, root, 0, cloogOptions, statement_texts, call_texts);
+      CodeGenOMP codegen_omp( outfp, cloogOptions, statement_texts, call_texts );
+      codegen_omp.pprint( root, 0 );
     }else{
       std::cout << "not impemented" << std::endl;
       return 0;
