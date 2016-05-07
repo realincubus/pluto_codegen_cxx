@@ -125,7 +125,7 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
 	for (t = u->substitutions; t; t = t->next) {
 	  stringstream substitution;
 
-	  CodeGen codegen( substitution, options, statement_texts, call_texts );
+	  CodeGen codegen( substitution, options, statement_texts, call_texts, header_includes );
 
 	  assert(CLAST_STMT_IS_A(t, stmt_ass));
 	  if (codegen.pprint_parentheses_are_safer((struct clast_assignment *)t)) {

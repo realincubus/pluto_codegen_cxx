@@ -6,6 +6,8 @@ typedef plutoProg PlutoProg;
 
 #include <sstream>
 #include <vector>
+#include <map>
+#include <set>
 
 namespace pluto_codegen_cxx{
 
@@ -13,6 +15,8 @@ namespace pluto_codegen_cxx{
       EMIT_ACC,
       EMIT_OPENMP,
       EMIT_HPX,
+      EMIT_CILK,
+      EMIT_TBB,
       EMIT_LIST_END
   };
 
@@ -21,7 +25,8 @@ namespace pluto_codegen_cxx{
       std::vector<std::string>& statement_texts,
       EMIT_CODE_TYPE emit_code_type,
       bool write_cloog_file,
-      std::map<std::string, std::string>& call_texts
+      std::map<std::string, std::string>& call_texts,
+      std::set<std::string>& header_includes
       );
 
 

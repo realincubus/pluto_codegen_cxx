@@ -14,13 +14,17 @@ void CodeGenAcc::pprint_for_loop_preamble( struct clast_for* f, int indent ){
       dst << "#pragma acc kernels ";
       dst << endl;
       pprint_indent( indent );
+      return;
     }
+    // TODO will be emitted if it is a inner loop 
+    //      acc kernels statements can not be nested !?!?
     if ((f->parallel & CLAST_PARALLEL_VEC) && !(f->parallel & CLAST_PARALLEL_OMP) && !(f->parallel & CLAST_PARALLEL_MPI)) {
-      assert( 0 );
+      dst << "#pragma acc kernels ";
+      dst << endl;
+      pprint_indent( indent );
     }
 
-    // must not be reached
-    assert( 0 );
+    // can be reached if the loop is a inner loop
 }
 
 void CodeGenAcc::pprint_for(struct cloogoptions *options, int indent, struct clast_for *f)

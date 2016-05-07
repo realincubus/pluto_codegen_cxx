@@ -3,6 +3,7 @@
 // be used to subclass for different code genration styles
 
 #include <map>
+#include <set>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -17,12 +18,14 @@ public:
     CodeGen ( std::stringstream& _output, 
 	      CloogOptions* _options,  
 	      std::vector<std::string>& _statement_texts,
-	      std::map<std::string,std::string>& _call_texts
+	      std::map<std::string,std::string>& _call_texts,
+	      std::set<std::string>& _header_includes
     ) : 
       dst(_output),
       options(_options),
       statement_texts(_statement_texts),
-      call_texts(_call_texts)
+      call_texts(_call_texts),
+      header_includes(_header_includes)
 
     {
     }
@@ -68,6 +71,7 @@ protected:
     CloogOptions* options = nullptr;
     std::vector<std::string>& statement_texts;
     std::map<std::string,std::string>& call_texts;
+    std::set<std::string>& header_includes;
 
     bool make_fqn = false;
     

@@ -32,6 +32,8 @@ void pluto_mark_vector(struct clast_stmt *root, const PlutoProg *prog, CloogOpti
 #include "codegen_omp.hpp"
 #include "codegen_acc.hpp"
 #include "codegen_cilk.hpp"
+#include "codegen_tbb.hpp"
+#include "codegen_hpx.hpp"
 
 using namespace std;
 
@@ -77,7 +79,8 @@ static int get_first_point_loop(Stmt *stmt, const PlutoProg *prog)
  */
 int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
         stringstream& outfp, FILE* cloogfp, vector<std::string>& statement_texts, EMIT_CODE_TYPE emit_code_type,
-	std::map<std::string,std::string>& call_texts
+	std::map<std::string,std::string>& call_texts,
+	std::set<std::string>& header_includes
     )
 {
     CloogInput *input ;
@@ -170,17 +173,36 @@ int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
     }
 #endif
 
-    if ( emit_code_type == EMIT_ACC ) {
-      //clast_cxx_acc::clast_pprint(outfp, root, 0, cloogOptions, statement_texts, call_texts);
-      CodeGenAcc codegen_acc( outfp, cloogOptions, statement_texts, call_texts );
-      codegen_acc.pprint( root, 0 );
-    }else if( emit_code_type == EMIT_OPENMP ){
-      //clast_cxx_omp::clast_pprint(outfp, root, 0, cloogOptions, statement_texts, call_texts);
-      CodeGenOMP codegen_omp( outfp, cloogOptions, statement_texts, call_texts );
-      codegen_omp.pprint( root, 0 );
-    }else{
-      std::cout << "not impemented" << std::endl;
-      return 0;
+    switch( emit_code_type) {
+
+      case EMIT_ACC :{
+	  CodeGenAcc codegen_acc( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  codegen_acc.pprint( root, 0 );
+          break;
+      }
+      case EMIT_OPENMP :{
+	  CodeGenOMP codegen_omp( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  codegen_omp.pprint( root, 0 );
+          break;
+      }
+      case EMIT_TBB :{
+	  CodeGenTbb codegen_tbb( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  codegen_tbb.pprint( root, 0 );
+          break;
+      }
+      case EMIT_CILK :{
+	  CodeGenCilk codegen_cilk( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  codegen_cilk.pprint( root, 0 );
+          break;
+      }
+      case EMIT_HPX :{
+	  CodeGenHpx codegen_hpx( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  codegen_hpx.pprint( root, 0 );
+          break;
+      }
+      default:
+	std::cout << "not impemented" << std::endl;
+	return -1;
     }
     cloog_clast_free(root);
 
@@ -225,7 +247,8 @@ int pluto_multicore_codegen( stringstream& outfp,
     vector<std::string>& statement_texts,
     EMIT_CODE_TYPE emit_code_type,
     bool write_cloog_file,
-    std::map<std::string, std::string>& call_texts
+    std::map<std::string, std::string>& call_texts,
+    std::set<std::string>& header_includes
     )
 { 
 
@@ -265,7 +288,7 @@ int pluto_multicore_codegen( stringstream& outfp,
 
     std::cout << "pluto_codegen_cxx ndeps " <<  prog->ndeps << std::endl;
 
-    return pluto_gen_cloog_code_cxx(prog, -1, -1, outfp, cloogfp, statement_texts, emit_code_type, call_texts );
+    return pluto_gen_cloog_code_cxx(prog, -1, -1, outfp, cloogfp, statement_texts, emit_code_type, call_texts, header_includes );
 }
 
 }
