@@ -69,7 +69,7 @@ void CodeGen::pprint_guard(struct cloogoptions *options, int indent, struct clas
 
 
 // TODO remove output
-void CodeGen::replace_marker_with( int id , std::string& text, std::string replacement ){
+std::string CodeGen::replace_marker_with( int id , std::string text, std::string replacement ){
   std::cout << "text: " << text << std::endl;
 
   std::string placeholder = "..."s + to_string(id) + "..."s;
@@ -82,6 +82,7 @@ void CodeGen::replace_marker_with( int id , std::string& text, std::string repla
     pos = text.find(placeholder);
   }
   std::cout << "text: " << text << std::endl;
+  return text;
 } 
 
 // TODO check for deprication !
@@ -116,6 +117,8 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
     // TODO is this still needed? osl is never used with this kind of code setup
     //if (pprint_osl_body(options, u))
     //  return;
+    //
+    std::string statement_text = statement_texts[u->statement->number-1];
     
     if (u->statement->name){
 	dst << u->statement->name;
@@ -141,10 +144,10 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
 	  }
 
 	  // at this point the substitution is generated
-	  replace_marker_with( ctr++, statement_texts[u->statement->number-1], substitution.str() );
+	  statement_text = replace_marker_with( ctr++, statement_text, substitution.str() );
 
 	}
-	dst << statement_texts[u->statement->number-1];
+	dst << statement_text;
     }
 }
 

@@ -54,7 +54,7 @@ public:
     virtual void pprint_minmax_c(struct cloogoptions *info, struct clast_reduction *r);
     virtual void pprint_user_stmt(struct cloogoptions *options, struct clast_user_stmt *u);
     virtual int  pprint_parentheses_are_safer(struct clast_assignment * s);
-    virtual void replace_marker_with( int id , std::string& text, std::string replacement );
+    virtual std::string replace_marker_with( int id , std::string text, std::string replacement );
     virtual void pprint_for(struct cloogoptions *options, int indent, struct clast_for *f);
     virtual void pprint_guard(struct cloogoptions *options, int indent, struct clast_guard *g);
     virtual void pprint_equation(struct cloogoptions *i, struct clast_equation *eq);
