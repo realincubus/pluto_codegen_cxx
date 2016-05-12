@@ -130,8 +130,10 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
 
 	  CodeGen codegen( substitution, options, statement_texts, call_texts, header_includes );
 
+	  bool next = t->next;
+
 	  assert(CLAST_STMT_IS_A(t, stmt_ass));
-	  if (codegen.pprint_parentheses_are_safer((struct clast_assignment *)t)) {
+	  if (next && codegen.pprint_parentheses_are_safer((struct clast_assignment *)t)) {
 	    substitution << "(";
 	    parenthesis_to_close = 1;
 	  }
