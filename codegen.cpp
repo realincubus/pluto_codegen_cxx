@@ -136,11 +136,10 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
 	    parenthesis_to_close = 1;
 	  }
 	  codegen.pprint_assignment(options, substitution, (struct clast_assignment *)t);
-	  if (t->next) {
-	      if (parenthesis_to_close) {
-		substitution << ")";
-		parenthesis_to_close = 0;
-	      }
+
+	  if (parenthesis_to_close) {
+	    substitution << ")";
+	    parenthesis_to_close = 0;
 	  }
 
 	  // at this point the substitution is generated
