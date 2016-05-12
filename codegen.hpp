@@ -64,6 +64,7 @@ public:
     virtual void pprint_for_loop_preamble( struct clast_for* f, int indent );
     /// @brief the name of the for loop ( for, cilk_for .. )
     virtual void pprint_for_loop_name( );
+    virtual void pprint_if_qualified( std::string, std::string );
 
 protected:
 
@@ -73,7 +74,7 @@ protected:
     std::map<std::string,std::string>& call_texts;
     std::set<std::string>& header_includes;
 
-    bool make_fqn = false;
+    bool qualified_names = true;
     
 };
 

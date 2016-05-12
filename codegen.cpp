@@ -152,14 +152,25 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
     }
 }
 
+// prints the qualified name if the option is set
+void CodeGen::pprint_if_qualified( std::string ns, std::string s ) {
+  if ( qualified_names ) {
+    dst << ns << "::" << s; 
+  }else{
+    dst << s; 
+  }
+}
+
 // TODO make it write std if asked to 
 void CodeGen::pprint_minmax_c(struct cloogoptions *info, struct clast_reduction *r)
 {
+    // add the algorithm header to the includes
+    header_includes.insert( "algorithm" );
     for (int i = 1; i < r->n; ++i){
 	if ( r->type == clast_red_max ) {
-	  dst << "max(";
+	  pprint_if_qualified( "std", "max(" );
 	}else{
-	  dst << "min(";
+	  pprint_if_qualified( "std", "min(" );
 	}
     }
     if (r->n > 0){
