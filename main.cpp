@@ -8,6 +8,7 @@
 #include <sstream>
 #include <map>
 #include <iostream>
+#include <chrono>
 
 #include <cloog/cloog.h>
 
@@ -154,24 +155,43 @@ int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
 
     cloogOptions->name = "PLUTO-produced CLooG file";
 
-    //outfp << "/* Start of CLooG code */" << endl;
-    /* Get the code from CLooG */
-    printf("[pluto] cloog_input_read\n");
-    input = cloog_input_read(cloogfp, cloogOptions) ;
-    if ( !input ) {
-      std::cout << "could not extract a cloog representation int " << __PRETTY_FUNCTION__ << std::endl;
-      return EXIT_FAILURE;
+    {
+      //outfp << "/* Start of CLooG code */" << endl;
+      /* Get the code from CLooG */
+      printf("[pluto] cloog_input_read\n");
+      input = cloog_input_read(cloogfp, cloogOptions) ;
+      if ( !input ) {
+	std::cout << "could not extract a cloog representation int " << __PRETTY_FUNCTION__ << std::endl;
+	return EXIT_FAILURE;
+      }
+      auto begin = std::chrono::high_resolution_clock::now();
+      printf("[pluto] cloog_clast_create\n");
+      root = cloog_clast_create_from_input(input, cloogOptions);
+
+      auto end = std::chrono::high_resolution_clock::now();
+
+      std::chrono::duration<double> diff = end-begin;
+      std::cerr << "cloog input and clast create time consumption " << diff.count() << " s" << std::endl;
     }
-    printf("[pluto] cloog_clast_create\n");
-    root = cloog_clast_create_from_input(input, cloogOptions);
+
+
 #if 1
     if (options->prevector) {
+	auto begin = std::chrono::high_resolution_clock::now();
         pluto_mark_vector(root, prog, cloogOptions);
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> diff = end-begin;
+	std::cerr << "mark_vector time consumption " << diff.count() << " s" << std::endl;
     }
     if (options->parallel) {
+	auto begin = std::chrono::high_resolution_clock::now();
         pluto_mark_parallel(root, prog, cloogOptions);
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> diff = end-begin;
+	std::cerr << "mark_parallel time consumption " << diff.count() << " s" << std::endl;
     }
 #endif
+    auto begin = std::chrono::high_resolution_clock::now();
 
     switch( emit_code_type) {
 
@@ -204,6 +224,12 @@ int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
 	std::cout << "not impemented" << std::endl;
 	return -1;
     }
+
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> diff = end-begin;
+    std::cerr << "code_emission time consumption " << diff.count() << " s" << std::endl;
+
     cloog_clast_free(root);
 
     //fprintf(outfp, "/* End of CLooG code */\n");
