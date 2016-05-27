@@ -18,8 +18,10 @@ void CodeGenOMP::pprint_for_loop_preamble( struct clast_for* f, int indent ){
 	  dst << "private(" << f->private_vars << ")";
 	}
 #endif 
+	// TODO which type of reduction ?? set this to the needed type
+	std::string reduction_type = "+";
 	if ( f->reduction_vars ) {
-	  dst << "reduction(" << f->reduction_vars << ")";
+	  dst << "reduction( " << reduction_type << ":" << f->reduction_vars << ")";
 	}
 	dst << endl;
 	pprint_indent( indent );

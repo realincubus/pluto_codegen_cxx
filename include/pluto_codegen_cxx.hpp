@@ -1,3 +1,4 @@
+#pragma once
 
 //#include "pluto.h"
 
@@ -10,6 +11,25 @@ typedef plutoProg PlutoProg;
 #include <set>
 
 namespace pluto_codegen_cxx{
+
+  struct StatementInformation {
+      std::string statement_text;
+
+      enum ReductionOperation {
+	REDUCTION_MAX,
+	REDUCTION_MIN,
+	REDUCTION_MUL,
+	REDUCTION_SUM
+      };
+      std::set<
+	std::pair<
+	  std::string,ReductionOperation
+	>
+      > reductions;
+
+
+
+  };
 
   enum EMIT_CODE_TYPE{
       EMIT_ACC,

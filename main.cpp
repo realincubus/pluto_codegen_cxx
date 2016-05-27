@@ -9,6 +9,7 @@
 #include <map>
 #include <iostream>
 #include <chrono>
+#include <functional>
 
 #include <cloog/cloog.h>
 
@@ -69,7 +70,164 @@ static int get_first_point_loop(Stmt *stmt, const PlutoProg *prog)
     return first_point_loop;
 }
 
+struct ParentWrapper {
+    clast_stmt* stmt;
+    ParentWrapper* parent;
+};
 
+typedef std::function< void( clast_stmt*, ParentWrapper ) > callback;
+
+
+void visit_ast_node( clast_stmt* node, ParentWrapper parent, const clast_stmt_op& type, callback c ) {
+
+  // recursion end
+  if ( node == nullptr ) return;
+
+  if (CLAST_STMT_IS_A(node, stmt_root)) {
+    struct clast_root *root = (struct clast_root *) node;
+    visit_ast_node( (root->stmt).next, parent, type, c );
+  }
+  if (CLAST_STMT_IS_A(node, stmt_guard)) {
+    struct clast_guard *guard = (struct clast_guard *) node;
+    visit_ast_node( guard->then, { node, &parent }, type, c );
+    visit_ast_node( (guard->stmt).next, parent, type, c  );
+  }
+
+  if (CLAST_STMT_IS_A(node, stmt_user)) {
+    struct clast_user_stmt *user_stmt = (struct clast_user_stmt *) node;
+    visit_ast_node( (user_stmt->stmt).next, parent, type, c );
+    if ( &type == &stmt_user ){
+      c( node, parent );
+    }
+  }
+
+  if (CLAST_STMT_IS_A(node, stmt_for)) {
+    struct clast_for *for_stmt = (struct clast_for *) node;
+    visit_ast_node( for_stmt->body, { node, &parent} , type, c );
+    visit_ast_node( (for_stmt->stmt).next, parent, type, c );
+  }
+}
+
+struct StatementInfo {
+    enum STATEMENT_TYPE{
+      REDUCTION_SUM,
+      REDUCTION_MUL,
+      REDUCTION_MAX,
+      REDUCTION_MIN
+    };
+
+    STATEMENT_TYPE type;
+
+    char var[200];
+
+};
+
+
+// searches till root and marks the first for loop with the reductions specified in sinfo
+void mark_reduction( ParentWrapper parent, StatementInformation* sinfo ) {
+
+   // recursion end
+  if ( parent.stmt == nullptr ) return;
+
+  if (CLAST_STMT_IS_A(parent.stmt, stmt_root)) {
+    return;
+  }
+  if (CLAST_STMT_IS_A(parent.stmt, stmt_guard)) {
+    mark_reduction( *parent.parent, sinfo );
+    return;
+  }
+
+  if (CLAST_STMT_IS_A(parent.stmt, stmt_user)) {
+    mark_reduction( *parent.parent, sinfo );
+    return;
+  }
+
+  if (CLAST_STMT_IS_A(parent.stmt, stmt_for)) {
+    struct clast_for *for_stmt = (struct clast_for *) parent.stmt;
+    std::cerr << "codegen: found enclosing loop" << std::endl;
+
+    // make a copy 
+    auto reductions = sinfo->reductions;
+    std::string rvars = "";
+    if ( for_stmt->reduction_vars ) {
+      rvars = for_stmt->reduction_vars;
+      std::cerr << "codegen: rvars is " << rvars << std::endl;
+      free( for_stmt->reduction_vars );
+      // splice by , 
+      stringstream sstr( rvars );
+      std::string var;
+      while( getline ( sstr, var , ',' ) ) {
+	//TODO also handle other things but sum 
+	std::cerr << "codegen: adding " << var << " to set"  << std::endl;
+	reductions.insert( make_pair( var, StatementInformation::REDUCTION_SUM ) );
+      }
+    }
+
+    if ( reductions.size() == 0 ) return;
+    // reconstruct the string
+    int nreductions = reductions.size();
+    int ctr = 0;
+    rvars = "";
+    std::cerr << "codegen: n reductions " << reductions.size() << std::endl;
+    for( auto&& reduction : reductions ){
+      std::cerr << "codegen: redcution on " << reduction.first << std::endl;
+      rvars += reduction.first;
+      if ( ctr + 1 < nreductions ){
+	rvars += ",";
+      }
+      ctr++;
+    }
+    
+    // store it back as a c string
+    for_stmt->reduction_vars = strdup( rvars.c_str() );
+
+    return;
+  } 
+}
+
+void update_clast_reduction_information( clast_stmt* root, const PlutoProg* prog )
+{
+  // TODO visit every user_statement
+  //      seams i need to use the clast filter function
+  char* iter = nullptr;
+  int* stmtids = nullptr;
+  int my_nstmts = 0;
+  ClastFilter filter = {iter, stmtids, my_nstmts, subset}; 
+
+  clast_for** loops;
+  int nloops;
+  int* stmts;
+  int nstmts;
+  clast_filter( root, filter, &loops, &nloops, &stmts, &nstmts );
+
+  std::cerr << "codegen: got " << nloops << " " << nstmts << std::endl;
+
+  // get the statement in this ast and move the reduction to the enclosing for loop 
+  visit_ast_node( root, { nullptr, nullptr }, stmt_user, 
+      [&](clast_stmt* user, ParentWrapper parent){
+	std::cerr << "got the user_stmt from the ast" << std::endl;
+	clast_user_stmt* ustmt = (clast_user_stmt*)user;
+	auto stmt = ustmt->statement;
+	cloog_statement_print( stderr, stmt );
+	std::cerr << "codegen: statement properties " << stmt->state << " " << stmt->number << " " << stmt->usr << std::endl;
+
+	int id = stmt->number - 1;
+	assert( id >= 0 && id < prog->nstmts && "out of bounds" );
+	
+	// query info from the pluto program
+	auto pstmt = prog->stmts[id]; 
+
+	if ( pstmt->user ) {
+	  stmt->usr = pstmt->user;
+	  std::cerr << "codegen: adding statement information" << std::endl;
+	  auto sinfo = (StatementInformation*)stmt->usr;
+	  std::cerr << "codegen: marking reduction" << std::endl;
+	  mark_reduction( parent, sinfo );
+	}
+      } 
+  );
+
+}
 
 /* Call cloog and generate code for the transformed program
  *
@@ -174,8 +332,9 @@ int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
       std::cerr << "cloog input and clast create time consumption " << diff.count() << " s" << std::endl;
     }
 
+    // update the clast with information about reductions
+    update_clast_reduction_information( root, prog );
 
-#if 1
     if (options->prevector) {
 	auto begin = std::chrono::high_resolution_clock::now();
         pluto_mark_vector(root, prog, cloogOptions);
@@ -190,7 +349,6 @@ int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
 	std::chrono::duration<double> diff = end-begin;
 	std::cerr << "mark_parallel time consumption " << diff.count() << " s" << std::endl;
     }
-#endif
     auto begin = std::chrono::high_resolution_clock::now();
 
     switch( emit_code_type) {

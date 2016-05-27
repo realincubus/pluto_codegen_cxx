@@ -9,7 +9,7 @@
 #include <sstream>
 #include <cloog/cloog.h>
 #include <cloog/clast.h>
-
+#include "pluto_codegen_cxx.hpp"
 
 #undef cloog_int_print
 

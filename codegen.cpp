@@ -118,7 +118,13 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
     //if (pprint_osl_body(options, u))
     //  return;
     //
-    std::string statement_text = statement_texts[u->statement->number-1];
+    //std::string statement_text = statement_texts[u->statement->number-1];
+    pluto_codegen_cxx::StatementInformation* sinfo = (pluto_codegen_cxx::StatementInformation*)u->statement->usr;
+    if ( !sinfo ) {
+      std::cerr << "codegen: no statement info provided for stmt " << u->statement->number-1 << std::endl;
+      exit(-1);
+    }
+    std::string statement_text = sinfo->statement_text;
     
     if (u->statement->name){
 	dst << u->statement->name;
