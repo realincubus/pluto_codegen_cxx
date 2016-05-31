@@ -146,40 +146,27 @@ void mark_reduction( ParentWrapper parent, StatementInformation* sinfo ) {
     struct clast_for *for_stmt = (struct clast_for *) parent.stmt;
     std::cerr << "codegen: found enclosing loop" << std::endl;
 
-    // make a copy 
-    auto reductions = sinfo->reductions;
-    std::string rvars = "";
+    auto& reductions = sinfo->reductions;
+
     if ( for_stmt->reduction_vars ) {
-      rvars = for_stmt->reduction_vars;
-      std::cerr << "codegen: rvars is " << rvars << std::endl;
-      free( for_stmt->reduction_vars );
-      // splice by , 
-      stringstream sstr( rvars );
-      std::string var;
-      while( getline ( sstr, var , ',' ) ) {
-	//TODO also handle other things but sum 
-	std::cerr << "codegen: adding " << var << " to set"  << std::endl;
-	reductions.insert( make_pair( var, StatementInformation::REDUCTION_SUM ) );
+      auto present_reductions = StatementInformation::from_string( for_stmt->reduction_vars );
+
+      // fuse the present reductions with the new ones
+      for( auto& element : present_reductions ){
+	reductions.insert( element );
       }
+
     }
 
+
+    
+
     if ( reductions.size() == 0 ) return;
-    // reconstruct the string
-    int nreductions = reductions.size();
-    int ctr = 0;
-    rvars = "";
-    std::cerr << "codegen: n reductions " << reductions.size() << std::endl;
-    for( auto&& reduction : reductions ){
-      std::cerr << "codegen: redcution on " << reduction.first << std::endl;
-      rvars += reduction.first;
-      if ( ctr + 1 < nreductions ){
-	rvars += ",";
-      }
-      ctr++;
-    }
+
+    auto new_reductions = StatementInformation::to_string( reductions );
     
     // store it back as a c string
-    for_stmt->reduction_vars = strdup( rvars.c_str() );
+    for_stmt->reduction_vars = strdup( new_reductions.c_str() );
 
     return;
   } 

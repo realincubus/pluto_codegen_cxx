@@ -5,6 +5,7 @@
 
 
 using namespace std;
+using namespace pluto_codegen_cxx;
 
  
 void CodeGenOMP::pprint_for_loop_preamble( struct clast_for* f, int indent ){
@@ -12,16 +13,19 @@ void CodeGenOMP::pprint_for_loop_preamble( struct clast_for* f, int indent ){
     if ((f->parallel & CLAST_PARALLEL_OMP) && !(f->parallel & CLAST_PARALLEL_MPI)) {
 
 	dst << "#pragma omp parallel for ";
-#if 0
-	// TODO reenable if we have private vars
-	if ( f->private_vars ) {
-	  dst << "private(" << f->private_vars << ")";
-	}
-#endif 
-	// TODO which type of reduction ?? set this to the needed type
-	std::string reduction_type = "+";
 	if ( f->reduction_vars ) {
-	  dst << "reduction( " << reduction_type << ":" << f->reduction_vars << ")";
+	  // unparse the reduction variables into a set
+	  auto reduction_set = StatementInformation::from_string( f->reduction_vars );
+	  int once = true;
+	  for( auto& reduction : reduction_set ){
+	    if ( once ) {
+	      once = false;
+	    }else{
+	      dst << ", ";
+	    }
+	    dst << "reduction( " << StatementInformation::enum_to_op(reduction.second) << ":" << reduction.first << ")";
+	  }
+	  
 	}
 	dst << endl;
 	pprint_indent( indent );

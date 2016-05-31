@@ -21,12 +21,18 @@ namespace pluto_codegen_cxx{
 	REDUCTION_MUL,
 	REDUCTION_SUM
       };
-      std::set<
+      typedef std::set<
 	std::pair<
 	  std::string,ReductionOperation
 	>
-      > reductions;
+      > reduction_set;
+      
+      reduction_set reductions;
 
+      static reduction_set	from_string( std::string );
+      static std::string	to_string( const reduction_set& );
+      static ReductionOperation op_to_enum( std::string op );
+      static std::string	enum_to_op( StatementInformation::ReductionOperation op );
 
 
   };
