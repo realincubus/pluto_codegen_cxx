@@ -47,8 +47,8 @@ public:
     virtual void pprint_term(struct cloogoptions *i, struct clast_term *t);
     virtual void pprint_reduction(struct cloogoptions *i, struct clast_reduction *r);
     virtual void pprint_binary(struct cloogoptions *i, struct clast_binary *b);
-    template <typename T>
-    void cloog_int_print(T i);
+    //template <typename T>
+    //void cloog_int_print(T i);
 
     virtual void pprint_sum(struct cloogoptions *opt, struct clast_reduction *r);
     virtual void pprint_minmax_c(struct cloogoptions *info, struct clast_reduction *r);
@@ -62,9 +62,13 @@ public:
     virtual void pprint_time_end( struct clast_for* f );
     /// @brief the part before the for ( ... ) begins
     virtual void pprint_for_loop_preamble( struct clast_for* f, int indent );
+    /// @brief the part after the for loop
+    virtual void pprint_for_loop_epilogue( struct clast_for* f, int indent );
     /// @brief the name of the for loop ( for, cilk_for .. )
     virtual void pprint_for_loop_name( );
     virtual void pprint_if_qualified( std::string, std::string );
+    virtual void replace_reduction_variables( std::string& statement_texts, pluto_codegen_cxx::StatementInformation* sinfo );
+  
 
 protected:
 
@@ -78,4 +82,12 @@ protected:
     
 };
 
-
+template <typename T>
+inline void cloog_int_print( std::stringstream& dst,  T i ) {
+  char *s;                                                
+  cloog_int_print_gmp_free_t gmp_free;                    
+  s = mpz_get_str(0, 10, i);                              
+  dst << s;                                               	
+  mp_get_memory_functions(NULL, NULL, &gmp_free);         
+  (*gmp_free)(s, strlen(s)+1);                            
+}

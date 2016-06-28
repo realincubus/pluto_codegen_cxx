@@ -5,6 +5,7 @@
 
 using namespace std;
 
+
 void CodeGen::pprint_for_loop_name() {
     dst << "for (";
 }
@@ -109,6 +110,18 @@ int CodeGen::pprint_parentheses_are_safer(struct clast_assignment * s) {
   return 1;
 }
 
+void CodeGen::pprint_for_loop_preamble( struct clast_for* f, int indent ){
+
+}
+
+void CodeGen::pprint_for_loop_epilogue( struct clast_for* f, int indent ){
+
+}
+
+void CodeGen::replace_reduction_variables( std::string& statement_texts, pluto_codegen_cxx::StatementInformation* sinfo ){
+  
+}
+
 void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_stmt *u)
 {
     int parenthesis_to_close = 0;
@@ -152,6 +165,7 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
 
 	  // at this point the substitution is generated
 	  statement_text = replace_marker_with( ctr++, statement_text, substitution.str() );
+	  replace_reduction_variables( statement_text, sinfo );
 
 	}
 	dst << statement_text;
@@ -212,15 +226,6 @@ void CodeGen::pprint_sum(struct cloogoptions *opt, struct clast_reduction *r)
     }
 }
 
-template <typename T>
-void CodeGen::cloog_int_print( T i ) {
-  char *s;                                                
-  cloog_int_print_gmp_free_t gmp_free;                    
-  s = mpz_get_str(0, 10, i);                              
-  dst << s;                                               	
-  mp_get_memory_functions(NULL, NULL, &gmp_free);         
-  (*gmp_free)(s, strlen(s)+1);                            
-}
 
 // TODO think about std::min max and check for adding the needed headers 
 void CodeGen::pprint_binary(struct cloogoptions *i, struct clast_binary *b)
@@ -252,7 +257,7 @@ void CodeGen::pprint_binary(struct cloogoptions *i, struct clast_binary *b)
     dst << s1;
     pprint_expr(i, b->LHS);
     dst << s2;
-    cloog_int_print( b->RHS);
+    cloog_int_print( dst, b->RHS);
     dst << s3;
 }
 
@@ -304,7 +309,7 @@ void CodeGen::pprint_term(struct cloogoptions *i, struct clast_term *t)
 	}else if (cloog_int_is_neg_one(t->val)){
 	    dst << "-";
 	} else {
-	    cloog_int_print( t->val);
+	    cloog_int_print( dst, t->val);
 	    dst << "*";
 	}
 	if (group){
@@ -315,7 +320,7 @@ void CodeGen::pprint_term(struct cloogoptions *i, struct clast_term *t)
 	    dst << ")";
 	}
     } else {
-	cloog_int_print( t->val);
+	cloog_int_print( dst, t->val);
     }
 }
 
@@ -358,7 +363,7 @@ void CodeGen::pprint_indent( int indent ){
 void CodeGen::pprint_for( struct cloogoptions *options, int indent, struct clast_for *f ) {
 
     pprint_time_begin( f );
-    pprint_for_loop_preamble( f, indent );
+    pprint_for_loop_preamble( f, indent +4 );
     pprint_for_loop_name();
 
     // print the intialization
@@ -383,7 +388,7 @@ void CodeGen::pprint_for( struct cloogoptions *options, int indent, struct clast
 
     if (cloog_int_gt_si(f->stride, 1)) {
       dst << ";" << f->iterator << "+=";
-      cloog_int_print(f->stride);
+      cloog_int_print(dst, f->stride);
       dst << ") {" << endl;
     } else {
       dst << ";++" << f->iterator << ") {" << endl;
@@ -396,12 +401,9 @@ void CodeGen::pprint_for( struct cloogoptions *options, int indent, struct clast
 
     // close the body
     dst << "}" << endl;
+    pprint_for_loop_epilogue( f, indent +4 );
 
     pprint_time_end( f );
-
-}
-
-void CodeGen::pprint_for_loop_preamble( struct clast_for* f, int indent ){
 
 }
 

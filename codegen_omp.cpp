@@ -127,7 +127,7 @@ void CodeGenOMP::pprint_for(struct cloogoptions *options, int indent, struct cla
 
     if (cloog_int_gt_si(f->stride, 1)) {
       dst << ";" << f->iterator << "+=";
-      cloog_int_print(f->stride);
+      cloog_int_print( dst, f->stride);
       dst << ") {" << endl;
     } else {
       dst << ";++" << f->iterator << ") {" << endl;

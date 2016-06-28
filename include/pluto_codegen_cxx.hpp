@@ -34,6 +34,7 @@ namespace pluto_codegen_cxx{
       static ReductionOperation op_to_enum( std::string op );
       static std::string	enum_to_op( StatementInformation::ReductionOperation op );
 
+      // TODO store the original clang ast node 
 
   };
 
