@@ -11,7 +11,7 @@ if (PLUTO_CODEGEN_CXX_INCLUDE_DIR AND PLUTO_CODEGEN_CXX_LIBRARY)
 endif()
 
 find_path(PLUTO_CODEGEN_CXX_INCLUDE_DIR NAMES pluto_codegen_cxx/pluto_codegen_cxx.hpp)
-find_library(PLUTO_CODEGEN_CXX_LIBRARY NAMES pluto_codegen_cxx)
+find_library(PLUTO_CODEGEN_CXX_LIBRARY NAMES lib/pluto_codegen_cxx)
 
 set ( PLUTO_CODEGEN_CXX_INCLUDE_DIR "${PLUTO_CODEGEN_CXX_INCLUDE_DIR}/pluto_codegen_cxx/" )
 
