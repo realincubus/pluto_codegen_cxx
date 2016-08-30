@@ -349,6 +349,14 @@ void CodeGenTbb::to_half_open_range( struct cloogoptions* i, struct clast_expr* 
 }
 #endif
 
+void CodeGenTbb::pprint_common_type_cast( struct clast_for* f ) {
+  dst << "(std::common_type<decltype(" ;
+  pprint_expr( options, f->LB );
+  dst << "), decltype(";
+  pprint_expr( options, f->UB );
+  dst << ")>::type)";
+}
+
 void CodeGenTbb::pprint_for(struct cloogoptions *options, int indent, struct clast_for *f)
 {
 
@@ -357,6 +365,7 @@ void CodeGenTbb::pprint_for(struct cloogoptions *options, int indent, struct cla
     pprint_for_loop_name();
 
     // print the intialization
+    // possible candidate if i would try to solve this by a library typedef std::common_type<decltype(0), decltype(h.size()-1+1)>::type co_type;
     
     // TODO left and right side have to have the 
     // same type so instanciation of the template works
@@ -367,6 +376,7 @@ void CodeGenTbb::pprint_for(struct cloogoptions *options, int indent, struct cla
     // # cast the other one to the larger type
     if (f->LB) {
       //dst << "(int)";
+      pprint_common_type_cast( f );
       pprint_expr(options, f->LB);
     } 
 
@@ -374,11 +384,12 @@ void CodeGenTbb::pprint_for(struct cloogoptions *options, int indent, struct cla
 
     // print the condition
     
-    // TODO this is off by one due to the half open range that is uses by pluto
+    // TODO this is off by one due to the half open range that is used by tbb
     // TODO corrected this by adding 1 to it. just a preliminary solution.
     //      merge the 1 with the expression 
     if (f->UB) { 
       //dst << "(int)";
+      pprint_common_type_cast( f );
       pprint_expr(options, f->UB);
       //to_half_open_range( options, f->UB );
       dst << " + 1";

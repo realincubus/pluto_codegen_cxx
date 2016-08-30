@@ -189,6 +189,7 @@ void update_clast_reduction_information( clast_stmt* root, const PlutoProg* prog
 
   std::cerr << "codegen: got " << nloops << " " << nstmts << std::endl;
 
+  // TODO dont i have to tag all for loops with the reduction clause ? 
   // get the statement in this ast and move the reduction to the enclosing for loop 
   visit_ast_node( root, { nullptr, nullptr }, stmt_user, 
       [&](clast_stmt* user, ParentWrapper parent){
