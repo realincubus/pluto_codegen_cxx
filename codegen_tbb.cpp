@@ -380,7 +380,7 @@ void CodeGenTbb::pprint_for(struct cloogoptions *options, int indent, struct cla
     // # cast the other one to the larger type
     if (f->LB) {
       //dst << "(int)";
-      pprint_common_type_cast( f );
+      //pprint_common_type_cast( f );
       pprint_expr(options, f->LB);
     } 
 
@@ -393,7 +393,7 @@ void CodeGenTbb::pprint_for(struct cloogoptions *options, int indent, struct cla
     //      merge the 1 with the expression 
     if (f->UB) { 
       //dst << "(int)";
-      pprint_common_type_cast( f );
+      //pprint_common_type_cast( f );
       pprint_expr(options, f->UB);
       //to_half_open_range( options, f->UB );
       dst << " + 1";

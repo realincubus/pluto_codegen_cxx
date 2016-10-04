@@ -7,7 +7,7 @@
 using namespace std;
 using namespace pluto_codegen_cxx;
 
-void CodeGenCilk::pprint_for_loop_name( ) {
+void CodeGenCilk::pprint_for_loop_name( struct clast_for *f) {
   header_includes.insert("cilk/cilk.h");
   dst << "cilk_for ("; 
 }
