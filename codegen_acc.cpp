@@ -32,7 +32,7 @@ void CodeGenAcc::pprint_for(struct cloogoptions *options, int indent, struct cla
 
     pprint_time_begin( f );
     pprint_for_loop_preamble( f, indent );
-    pprint_for_loop_name();
+    pprint_for_loop_name( f );
 
     // print the intialization
     

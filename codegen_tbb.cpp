@@ -85,9 +85,13 @@ CodeGenTbb::replace_reduction_variables( std::string& statement_text, StatementI
   
 }
 
-void CodeGenTbb::pprint_for_loop_name( ) {
-  header_includes.insert("tbb/parallel_for.h");
-  dst << "tbb::parallel_for ("; 
+void CodeGenTbb::pprint_for_loop_name(struct clast_for *f) {
+  if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
+    header_includes.insert("tbb/parallel_for.h");
+    dst << "tbb::parallel_for ("; 
+  }else{
+    CodeGen::pprint_for_loop_name( f ); 
+  }
 }
 
 
@@ -362,7 +366,7 @@ void CodeGenTbb::pprint_for(struct cloogoptions *options, int indent, struct cla
 
     pprint_time_begin( f );
     pprint_for_loop_preamble( f, indent + 4 );
-    pprint_for_loop_name();
+    pprint_for_loop_name(f);
 
     // print the intialization
     // possible candidate if i would try to solve this by a library typedef std::common_type<decltype(0), decltype(h.size()-1+1)>::type co_type;

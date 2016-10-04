@@ -6,7 +6,7 @@
 using namespace std;
 
 
-void CodeGen::pprint_for_loop_name() {
+void CodeGen::pprint_for_loop_name(struct clast_for *f) {
     dst << "for (";
 }
 
@@ -364,7 +364,7 @@ void CodeGen::pprint_for( struct cloogoptions *options, int indent, struct clast
 
     pprint_time_begin( f );
     pprint_for_loop_preamble( f, indent +4 );
-    pprint_for_loop_name();
+    pprint_for_loop_name(f);
 
     // print the intialization
     

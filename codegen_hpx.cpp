@@ -7,12 +7,17 @@
 
 using namespace std;
 
-void CodeGenHpx::pprint_for_loop_name( ) {
-  // TODO dont include this header if we are not in the main file
-  header_includes.insert("hpx/hpx_main.hpp");
-  // include this header 
-  header_includes.insert("hpx/parallel/algorithms/for_loop.hpp");
-  dst << "hpx::parallel::v2::for_loop ("; 
+// TODO dont include this header if we are not in the main file
+void CodeGenHpx::pprint_for_loop_name( struct clast_for *f ) {
+  if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
+    header_includes.insert("hpx/hpx_main.hpp");
+    // include this header 
+    header_includes.insert("hpx/parallel/algorithms/for_loop.hpp");
+
+    dst << "hpx::parallel::v2::for_loop ("; 
+  }else{
+    CodeGen::pprint_for_loop_name(f);
+  }
 }
 
 void CodeGenHpx::pprint_for(struct cloogoptions *options, int indent, struct clast_for *f)
@@ -20,11 +25,16 @@ void CodeGenHpx::pprint_for(struct cloogoptions *options, int indent, struct cla
 
     pprint_time_begin( f );
     pprint_for_loop_preamble( f, indent );
-    pprint_for_loop_name();
+    pprint_for_loop_name(f);
 
     // print the executuion policy
     
-    dst << "hpx::parallel::v1::par, ";
+    if (f->parallel & CLAST_PARALLEL_OMP) {
+      dst << "hpx::parallel::v1::par, ";
+    }
+    if (f->parallel & CLAST_PARALLEL_VEC) {
+      dst << "hpx::parallel::v1::datapar, ";
+    }
 
     // print the intialization
     

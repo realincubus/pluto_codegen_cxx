@@ -26,7 +26,7 @@ public:
 
 protected:
 
-    virtual void pprint_for_loop_name( );
+    virtual void pprint_for_loop_name( struct clast_for *f) override ;
     virtual void pprint_for(struct cloogoptions *options, int indent, struct clast_for *f);
     
 };
