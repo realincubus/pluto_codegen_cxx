@@ -36,6 +36,7 @@ void pluto_mark_vector(struct clast_stmt *root, const PlutoProg *prog, CloogOpti
 #include "codegen_cilk.hpp"
 #include "codegen_tbb.hpp"
 #include "codegen_hpx.hpp"
+#include "codegen_cuda.hpp"
 
 using namespace std;
 
@@ -364,6 +365,11 @@ int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
       case EMIT_HPX :{
 	  CodeGenHpx codegen_hpx( outfp, cloogOptions, statement_texts, call_texts, header_includes );
 	  codegen_hpx.pprint( root, 0 );
+          break;
+      }
+      case EMIT_CUDA :{
+	  CodeGenCuda codegen_cuda( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  codegen_cuda.pprint( root, 0 );
           break;
       }
       default:

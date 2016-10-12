@@ -44,6 +44,7 @@ namespace pluto_codegen_cxx{
       EMIT_HPX,
       EMIT_CILK,
       EMIT_TBB,
+      EMIT_CUDA,
       EMIT_LIST_END
   };
 
