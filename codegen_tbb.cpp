@@ -381,10 +381,17 @@ void CodeGenTbb::pprint_for(struct cloogoptions *options, int indent, struct cla
     if (f->LB) {
       //dst << "(int)";
       //pprint_common_type_cast( f );
+      if (!((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC)) ) {
+        dst << "auto " << f->iterator << "=";
+      }
       pprint_expr(options, f->LB);
     } 
 
-    dst << ",";
+    if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
+      dst << ",";
+    }else{
+      dst << "; ";
+    }
 
     // print the condition
     
@@ -394,26 +401,45 @@ void CodeGenTbb::pprint_for(struct cloogoptions *options, int indent, struct cla
     if (f->UB) { 
       //dst << "(int)";
       //pprint_common_type_cast( f );
-      pprint_expr(options, f->UB);
-      //to_half_open_range( options, f->UB );
-      dst << " + 1";
+      if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
+        pprint_expr(options, f->UB);
+        dst << " + 1";
+      }else{
+	dst << f->iterator << "<=";
+	pprint_expr(options, f->UB);
+      }
     }
 
-    dst << ",";
+    if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
+      dst << ",";
+    }
+ 
+    if (!((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC))) {
+      if (cloog_int_gt_si(f->stride, 1)) {
+        dst << ";" << f->iterator << "+=";
+        cloog_int_print(dst, f->stride);
+        dst << ") {" << endl;
+      } else {
+        dst << ";++" << f->iterator << ") {" << endl;
+      }
+    }else{
 
-    // stride is inherently 1 since if forbid pet to allow something other than 1 
-    
-    // build the lambda 
-    
-    dst << "[&](int " << f->iterator  << ") {\n" ; 
+      // stride is inherently 1 since if forbid pet to allow something other than 1 
+      // build the lambda 
+      dst << "[&](int " << f->iterator  << ") {\n" ; 
 
+    }
     // print the  for loop body
 
     pprint_stmt_list(indent + INDENT_STEP, f->body);
 
     // close the body
     pprint_indent( indent );
-    dst << "} );" << endl;
+    if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
+    	dst << "} );" << endl;
+    }else{
+	dst << "} " << endl;
+    }
 
     pprint_for_loop_epilogue( f, indent + 4  );
 
