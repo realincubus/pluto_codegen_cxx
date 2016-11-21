@@ -8,8 +8,12 @@ using namespace std;
 using namespace pluto_codegen_cxx;
 
 void CodeGenCilk::pprint_for_loop_name( struct clast_for *f) {
-  header_includes.insert("cilk/cilk.h");
-  dst << "cilk_for ("; 
+  if ((f->parallel & CLAST_PARALLEL_OMP) && !(f->parallel & CLAST_PARALLEL_MPI)) {
+    header_includes.insert("cilk/cilk.h");
+    dst << "cilk_for ("; 
+  }else{
+    dst << "for ("; 
+  }
 }
 
 void CodeGenCilk::pprint_for_loop_preamble( struct clast_for* f, int indent ) {
