@@ -152,12 +152,16 @@ void pprint_binary(struct cloogoptions *i, std::stringstream& dst, struct clast_
 	}
     } else {
 	switch (b->type) {
-	case clast_bin_fdiv:
-	    s1 = "floord(", s2 = ",", s3 = ")";
+	case clast_bin_fdiv:{
+	    header_includes.insert("cmath");
+	    s1 = "std::floor(", s2 = ",", s3 = ")";
 	    break;
-	case clast_bin_cdiv:
-	    s1 = "ceild(", s2 = ",", s3 = ")";
+	}
+	case clast_bin_cdiv:{
+	    header_includes.insert("cmath");
+	    s1 = "std::ceil(", s2 = ",", s3 = ")";
 	    break;
+	}
 	case clast_bin_div:
 	    if (group)
 		s1 = "(", s2 = ")/", s3 = "";
