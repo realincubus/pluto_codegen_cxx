@@ -236,7 +236,7 @@ void CodeGen::pprint_binary(struct cloogoptions *i, struct clast_binary *b)
     switch (b->type) {
     case clast_bin_fdiv:{
 	header_includes.insert("cmath");
-	s1 = "std::floor(", s2 = ",", s3 = ")";
+	s1 = "std::floor( (double)(", s2 = ") /", s3 = ")";
 	break;
     }
     case clast_bin_cdiv:{
