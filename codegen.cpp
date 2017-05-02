@@ -118,8 +118,9 @@ void CodeGen::pprint_for_loop_epilogue( struct clast_for* f, int indent ){
 
 }
 
-void CodeGen::replace_reduction_variables( std::string& statement_texts, pluto_codegen_cxx::StatementInformation* sinfo ){
-  
+std::string 
+CodeGen::replace_reduction_variables( std::string statement_texts, pluto_codegen_cxx::StatementInformation* sinfo ){
+  return statement_texts;  
 }
 
 void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_stmt *u)
@@ -165,9 +166,10 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
 
 	  // at this point the substitution is generated
 	  statement_text = replace_marker_with( ctr++, statement_text, substitution.str() );
-	  replace_reduction_variables( statement_text, sinfo );
-
 	}
+
+        statement_text = replace_reduction_variables( statement_text, sinfo );
+        cout << "debug " << statement_text << endl;
 	dst << statement_text;
     }
 }

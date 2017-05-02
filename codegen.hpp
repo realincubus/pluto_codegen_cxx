@@ -67,7 +67,7 @@ public:
     /// @brief the name of the for loop ( for, cilk_for .. )
     virtual void pprint_for_loop_name( struct clast_for *f );
     virtual void pprint_if_qualified( std::string, std::string );
-    virtual void replace_reduction_variables( std::string& statement_texts, pluto_codegen_cxx::StatementInformation* sinfo );
+    virtual std::string replace_reduction_variables( std::string statement_texts, pluto_codegen_cxx::StatementInformation* sinfo );
   
 
 protected:

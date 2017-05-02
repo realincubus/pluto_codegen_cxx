@@ -29,6 +29,6 @@ protected:
     virtual void pprint_for_loop_name(struct clast_for *f ) override;
     virtual void pprint_for_loop_preamble( struct clast_for* f, int indent ) override;
     virtual void pprint_for_loop_epilogue( struct clast_for* f, int indent ) override;
-    virtual void replace_reduction_variables( std::string& statement_texts,  pluto_codegen_cxx::StatementInformation* sinfo ) override;
+    virtual std::string replace_reduction_variables( std::string statement_texts,  pluto_codegen_cxx::StatementInformation* sinfo ) override;
     
 };

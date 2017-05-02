@@ -30,7 +30,7 @@ protected:
     virtual void pprint_for(struct cloogoptions *options, int indent, struct clast_for *f);
     virtual void pprint_for_loop_preamble( struct clast_for* f, int indent );
     virtual void pprint_for_loop_epilogue( struct clast_for* f, int indent );
-    virtual void replace_reduction_variables( std::string& statement_texts,  pluto_codegen_cxx::StatementInformation* sinfo ) override;
+    virtual std::string replace_reduction_variables( std::string statement_texts,  pluto_codegen_cxx::StatementInformation* sinfo ) override;
 
     void pprint_common_type_cast( struct clast_for* f );
 

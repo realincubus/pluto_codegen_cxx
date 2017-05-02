@@ -76,8 +76,8 @@ void CodeGenCilk::pprint_for_loop_epilogue( struct clast_for* f, int indent ) {
   }
 }
 
-void
-CodeGenCilk::replace_reduction_variables( std::string& statement_text, StatementInformation* sinfo ) {
+std::string
+CodeGenCilk::replace_reduction_variables( std::string statement_text, StatementInformation* sinfo ) {
   for( auto& reduction : sinfo->reductions ){
     // TODO search for all occurences of the name reduction.first
     //      and replace them with our new combine var
@@ -91,7 +91,7 @@ CodeGenCilk::replace_reduction_variables( std::string& statement_text, Statement
       pos += new_name.size();
     }
   }
-  
+  return statement_text; 
 }
 
 

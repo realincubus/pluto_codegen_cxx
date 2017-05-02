@@ -67,8 +67,8 @@ void CodeGenTbb::pprint_for_loop_epilogue( struct clast_for* f, int indent ) {
   }
 }
 
-void
-CodeGenTbb::replace_reduction_variables( std::string& statement_text, StatementInformation* sinfo ) {
+std::string
+CodeGenTbb::replace_reduction_variables( std::string statement_text, StatementInformation* sinfo ) {
   for( auto& reduction : sinfo->reductions ){
     // TODO search for all occurences of the name reduction.first
     //      and replace them with our new combine var
@@ -82,7 +82,7 @@ CodeGenTbb::replace_reduction_variables( std::string& statement_text, StatementI
       pos += new_name.size();
     }
   }
-  
+  return statement_text; 
 }
 
 void CodeGenTbb::pprint_for_loop_name(struct clast_for *f) {
