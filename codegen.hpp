@@ -19,15 +19,16 @@ public:
 	      CloogOptions* _options,  
 	      std::vector<std::string>& _statement_texts,
 	      std::map<std::string,std::string>& _call_texts,
-	      std::set<std::string>& _header_includes
+	      std::set<std::string>& _header_includes,
+              bool _print_guards
     ) : 
       dst(_output),
       options(_options),
       statement_texts(_statement_texts),
       call_texts(_call_texts),
       header_includes(_header_includes)
-
     {
+      print_options.print_guards = _print_guards;
     }
     virtual ~CodeGen () {
     
@@ -78,8 +79,10 @@ protected:
     std::map<std::string,std::string>& call_texts;
     std::set<std::string>& header_includes;
 
-    bool qualified_names = true;
-    
+    struct Options{
+      bool qualified_names = true;
+      bool print_guards = true;
+    } print_options;
 };
 
 template <typename T>

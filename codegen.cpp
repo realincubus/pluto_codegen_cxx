@@ -43,29 +43,33 @@ void CodeGen::pprint_equation(struct cloogoptions *i, struct clast_equation *eq)
 
 void CodeGen::pprint_guard(struct cloogoptions *options, int indent, struct clast_guard *g)
 {
-    dst << "if ";
 
-    if (g->n > 1){
-      dst << "(";
+    if ( print_options.print_guards ) {
+      dst << "if ";
+
+      if (g->n > 1){
+        dst << "(";
+      }
+
+      for (int k = 0; k < g->n; ++k) {
+          if (k > 0) {
+            dst << " && ";
+          }
+          dst << "(";
+          pprint_equation(options, &g->eq[k]);
+          dst << ")";
+      }
+      if (g->n > 1){
+        dst << ")";
+      }
+      dst << "{" << endl;
+      pprint_stmt_list(indent + INDENT_STEP, g->then);
+      pprint_indent( indent );
+
+      dst << "}";
+    }else{
+      pprint_stmt_list(indent, g->then);
     }
-
-    for (int k = 0; k < g->n; ++k) {
-	if (k > 0) {
-	  dst << " && ";
-	}
-	dst << "(";
-	pprint_equation(options, &g->eq[k]);
-	dst << ")";
-    }
-    if (g->n > 1){
-      dst << ")";
-    }
-    dst << "{" << endl;
-
-    pprint_stmt_list(indent + INDENT_STEP, g->then);
-    pprint_indent( indent );
-
-    dst << "}";
 }
 
 
@@ -148,7 +152,7 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
 	for (t = u->substitutions; t; t = t->next) {
 	  stringstream substitution;
 
-	  CodeGen codegen( substitution, options, statement_texts, call_texts, header_includes );
+	  CodeGen codegen( substitution, options, statement_texts, call_texts, header_includes, print_options.print_guards );
 
 	  bool next = t->next;
 
@@ -176,14 +180,13 @@ void CodeGen::pprint_user_stmt(struct cloogoptions *options, struct clast_user_s
 
 // prints the qualified name if the option is set
 void CodeGen::pprint_if_qualified( std::string ns, std::string s ) {
-  if ( qualified_names ) {
+  if ( print_options.qualified_names ) {
     dst << ns << "::" << s; 
   }else{
     dst << s; 
   }
 }
 
-// TODO make it write std if asked to 
 void CodeGen::pprint_minmax_c(struct cloogoptions *info, struct clast_reduction *r)
 {
     // add the algorithm header to the includes
@@ -229,7 +232,6 @@ void CodeGen::pprint_sum(struct cloogoptions *opt, struct clast_reduction *r)
 }
 
 
-// TODO think about std::min max and check for adding the needed headers 
 void CodeGen::pprint_binary(struct cloogoptions *i, struct clast_binary *b)
 {
     const char *s1 = NULL, *s2 = NULL, *s3 = NULL;

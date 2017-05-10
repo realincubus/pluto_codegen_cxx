@@ -54,7 +54,8 @@ namespace pluto_codegen_cxx{
       EMIT_CODE_TYPE emit_code_type,
       bool write_cloog_file,
       std::map<std::string, std::string>& call_texts,
-      std::set<std::string>& header_includes
+      std::set<std::string>& header_includes,
+      bool print_guards
       );
 
 

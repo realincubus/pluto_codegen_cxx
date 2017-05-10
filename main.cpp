@@ -228,7 +228,8 @@ void update_clast_reduction_information( clast_stmt* root, const PlutoProg* prog
 int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
         stringstream& outfp, FILE* cloogfp, vector<std::string>& statement_texts, EMIT_CODE_TYPE emit_code_type,
 	std::map<std::string,std::string>& call_texts,
-	std::set<std::string>& header_includes
+	std::set<std::string>& header_includes,
+        bool print_guards
     )
 {
     CloogInput *input ;
@@ -349,32 +350,32 @@ int pluto_gen_cloog_code_cxx(const PlutoProg *prog, int cloogf, int cloogl,
     switch( emit_code_type) {
 
       case EMIT_ACC :{
-	  CodeGenAcc codegen_acc( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  CodeGenAcc codegen_acc( outfp, cloogOptions, statement_texts, call_texts, header_includes, print_guards );
 	  codegen_acc.pprint( root, 0 );
           break;
       }
       case EMIT_OPENMP :{
-	  CodeGenOMP codegen_omp( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  CodeGenOMP codegen_omp( outfp, cloogOptions, statement_texts, call_texts, header_includes, print_guards );
 	  codegen_omp.pprint( root, 0 );
           break;
       }
       case EMIT_TBB :{
-	  CodeGenTbb codegen_tbb( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  CodeGenTbb codegen_tbb( outfp, cloogOptions, statement_texts, call_texts, header_includes , print_guards);
 	  codegen_tbb.pprint( root, 0 );
           break;
       }
       case EMIT_CILK :{
-	  CodeGenCilk codegen_cilk( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  CodeGenCilk codegen_cilk( outfp, cloogOptions, statement_texts, call_texts, header_includes , print_guards);
 	  codegen_cilk.pprint( root, 0 );
           break;
       }
       case EMIT_HPX :{
-	  CodeGenHpx codegen_hpx( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  CodeGenHpx codegen_hpx( outfp, cloogOptions, statement_texts, call_texts, header_includes , print_guards);
 	  codegen_hpx.pprint( root, 0 );
           break;
       }
       case EMIT_CUDA :{
-	  CodeGenCuda codegen_cuda( outfp, cloogOptions, statement_texts, call_texts, header_includes );
+	  CodeGenCuda codegen_cuda( outfp, cloogOptions, statement_texts, call_texts, header_includes , print_guards);
 	  codegen_cuda.pprint( root, 0 );
           break;
       }
@@ -432,7 +433,8 @@ int pluto_multicore_codegen( stringstream& outfp,
     EMIT_CODE_TYPE emit_code_type,
     bool write_cloog_file,
     std::map<std::string, std::string>& call_texts,
-    std::set<std::string>& header_includes
+    std::set<std::string>& header_includes,
+    bool print_guards
     )
 { 
 
@@ -472,7 +474,7 @@ int pluto_multicore_codegen( stringstream& outfp,
 
     std::cout << "pluto_codegen_cxx ndeps " <<  prog->ndeps << std::endl;
 
-    return pluto_gen_cloog_code_cxx(prog, -1, -1, outfp, cloogfp, statement_texts, emit_code_type, call_texts, header_includes );
+    return pluto_gen_cloog_code_cxx(prog, -1, -1, outfp, cloogfp, statement_texts, emit_code_type, call_texts, header_includes, print_guards );
 }
 
 }
