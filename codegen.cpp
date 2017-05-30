@@ -431,7 +431,10 @@ void CodeGen::pprint_stmt_list(
 	} else if (CLAST_STMT_IS_A(s, stmt_user)) {
 	    pprint_user_stmt(options, (struct clast_user_stmt *) s);
 	} else if (CLAST_STMT_IS_A(s, stmt_for)) {
+            auto state = print_options.print_guards;
+            print_options.print_guards = true;
 	    pprint_for(options, indent, (struct clast_for *) s);
+            print_options.print_guards = state;
 	} else if (CLAST_STMT_IS_A(s, stmt_guard)) {
 	    pprint_guard(options, indent, (struct clast_guard *) s);
 	} else if (CLAST_STMT_IS_A(s, stmt_block)) {
