@@ -42,7 +42,11 @@ void CodeGenHpx::pprint_for(struct cloogoptions *options, int indent, struct cla
       pprint_expr(options, f->LB);
     } 
 
-    dst << ",";
+    if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
+      dst << ",";
+    }else{
+      dst << ";";
+    }
 
     // print the condition
     //
@@ -50,17 +54,37 @@ void CodeGenHpx::pprint_for(struct cloogoptions *options, int indent, struct cla
     // TODO corrected this by adding 1 to it. just a preliminary solution.
     //      merge the 1 with the expression 
     if (f->UB) { 
-      pprint_expr(options, f->UB);
-      dst << " + 1";
+      if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
+        pprint_expr(options, f->UB);
+        dst << " + 1";
+      }else{
+	dst << f->iterator << "<=";
+	pprint_expr(options, f->UB);
+      }
     }
 
-    dst << ",";
+    if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
+      dst << ",";
+    }
 
     // stride is inherently 1
     
     // build the lambda 
-    
-    dst << "[&](int " << f->iterator  << ") {\n" ; 
+    if (!((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC))) {
+      if (cloog_int_gt_si(f->stride, 1)) {
+        dst << ";" << f->iterator << "+=";
+        cloog_int_print(dst, f->stride);
+        dst << ") {" << endl;
+      } else {
+        dst << ";++" << f->iterator << ") {" << endl;
+      }
+    }else{
+
+      // stride is inherently 1 since if forbid pet to allow something other than 1 
+      // build the lambda 
+      dst << "[&](int " << f->iterator  << ") {\n" ; 
+
+    }
 
     // print the  for loop body
 
@@ -68,7 +92,11 @@ void CodeGenHpx::pprint_for(struct cloogoptions *options, int indent, struct cla
 
     // close the body
     pprint_indent( indent );
-    dst << "} );" << endl;
+    if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
+    	dst << "} );" << endl;
+    }else{
+	dst << "} " << endl;
+    }
 
     pprint_time_end( f );
 
