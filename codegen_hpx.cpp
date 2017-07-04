@@ -37,10 +37,13 @@ void CodeGenHpx::pprint_for(struct cloogoptions *options, int indent, struct cla
     }
 
     // print the intialization
-    
     if (f->LB) {
+      if (!((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC)) ) {
+        dst << "auto " << f->iterator << "=";
+      }
       pprint_expr(options, f->LB);
     } 
+
 
     if ((f->parallel & CLAST_PARALLEL_OMP) || (f->parallel & CLAST_PARALLEL_VEC) ) {
       dst << ",";
